@@ -9,10 +9,6 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/senai_fastapi
-  CONTAINER: senai_fastapi
-
 jobs:
 
   # ── JOB 1: Testes ───────────────────────────────────────────
@@ -55,14 +51,14 @@ jobs:
         with:
           push: true
           tags: |
-            ${{ env.IMAGE }}:latest
-            ${{ env.IMAGE }}:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/senai_fastapi:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/senai_fastapi:${{ github.sha }}
 
       - name: Resumo
         run: |
           echo "## ✅ Imagem publicada no Docker Hub" >> $GITHUB_STEP_SUMMARY
-          echo "- ${{ env.IMAGE }}:latest" >> $GITHUB_STEP_SUMMARY
-          echo "- ${{ env.IMAGE }}:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- senai_fastapi:latest" >> $GITHUB_STEP_SUMMARY
+          echo "- senai_fastapi:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
 
   # ── JOB 3: Deploy na EC2 ────────────────────────────────────
   Deploy:
@@ -73,8 +69,8 @@ jobs:
       - name: Deploy via SSH na EC2
         uses: appleboy/ssh-action@v1.2.5
         env:
-          IMAGE: ${{ env.IMAGE }}
-          CONTAINER: ${{ env.CONTAINER }}
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/senai_fastapi
+          CONTAINER: senai_fastapi
         with:
           host: ${{ secrets.EC2_HOST }}          # <- o Elastic IP
           username: ${{ secrets.EC2_USERNAME }}
